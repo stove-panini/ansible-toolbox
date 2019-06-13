@@ -1,7 +1,6 @@
 ---
 # Run with: ansible-playbook -K
-- hosts: localhost
-  connection: local
+- hosts: local
   become: yes
   tasks:
     - name: Install Packages
