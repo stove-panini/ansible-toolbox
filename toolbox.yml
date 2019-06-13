@@ -10,6 +10,7 @@
         update_cache: yes
         name:
           - '@Development Tools'
+          - ansible
           - flatpak-builder
           - vim-X11
           - virt-manager
