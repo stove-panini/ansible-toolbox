@@ -1,0 +1,15 @@
+---
+# Run with: ansible-playbook -K
+- hosts: localhost
+  connection: local
+  become: yes
+  tasks:
+    - name: Install Packages
+      dnf:
+        state: latest
+        update_cache: yes
+        name:
+          - '@Development Tools'
+          - flatpak-builder
+          - vim-X11
+          - virt-manager
