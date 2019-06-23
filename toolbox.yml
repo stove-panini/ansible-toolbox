@@ -1,15 +1,24 @@
+#!/usr/bin/env -S ansible-playbook -K
 ---
-# Run with: ansible-playbook -K
 - hosts: local
   become: yes
   tasks:
-    - name: Install Packages
+    - name: Packages
       dnf:
         state: latest
-        update_cache: yes
         name:
           - '@Development Tools'
           - ansible
           - flatpak-builder
+          - ripgrep
+          - vim-enhanced
           - vim-X11
           - virt-manager
+          - youtube-dl
+
+    - name: Python modules
+      pip:
+        state: latest
+        name:
+          - ansible-lint
+          - flake8
