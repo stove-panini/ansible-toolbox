@@ -1,24 +1,50 @@
-#!/usr/bin/env -S ansible-playbook -K
+#!/usr/bin/ansible-playbook -K
 ---
-- hosts: local
+- hosts: localhost
   become: yes
   tasks:
-    - name: Packages
+    - name: Add Google Cloud repo
+      yum_repository:
+        name: google-cloud-sdk
+        description: Google Cloud SDK
+        baseurl: https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64
+        enabled: yes
+        gpgcheck: yes
+        repo_gpgcheck: yes
+        gpgkey:
+          - https://packages.cloud.google.com/yum/doc/yum-key.gpg
+          - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+    - name: Install packages
+      register: packages
       dnf:
-        state: latest
+        state: latest # noqa 403
         name:
           - '@Development Tools'
           - ansible
-          - flatpak-builder
-          - ripgrep
+          - bash-completion
+          - bind-utils
+          - dnf
+          - glibc-langpack-en
+          - kubectl
+          - nmap
+          - python3-ansible-lint
+          - python3-flake8
+          - ShellCheck
+          - stow
+          - tmux
           - vim-enhanced
           - vim-X11
           - virt-manager
-          - youtube-dl
 
-    - name: Python modules
-      pip:
-        state: latest
-        name:
-          - ansible-lint
-          - flake8
+    - name: Gather changed packages
+      register: package_report
+      command: dnf history info
+      args:
+        warn: no
+      when: packages is changed
+
+    - name: Package report
+      debug:
+        var: package_report.stdout_lines
+      when: packages is changed
