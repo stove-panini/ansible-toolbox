@@ -36,6 +36,7 @@
           - vim-enhanced
           - vim-X11
           - virt-manager
+          - youtube-dl
 
     - name: Gather changed packages
       register: package_report
