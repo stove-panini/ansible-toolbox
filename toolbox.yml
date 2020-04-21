@@ -43,6 +43,8 @@
       command: dnf history info
       args:
         warn: no
+      # dnf history generates a python traceback sometimes :\
+      failed_when: no
       when: packages is changed
 
     - name: Package report
