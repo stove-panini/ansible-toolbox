@@ -30,6 +30,7 @@
           - nmap
           - python3-ansible-lint
           - python3-flake8
+          - ruby
           - ShellCheck
           - stow
           - tmux
