@@ -24,7 +24,7 @@
           - ansible
           - bash-completion
           - bind-utils
-          - dnf
+            # Prevent LANG issues when SSHing from toolbox
           - glibc-langpack-en
           - kubectl
           - nmap
@@ -39,16 +39,17 @@
           - virt-manager
           - youtube-dl
 
-    - name: Gather changed packages
-      register: package_report
-      command: dnf history info
-      args:
-        warn: no
-      # dnf history generates a python traceback sometimes :\
-      failed_when: no
-      when: packages is changed
-
     - name: Package report
-      debug:
-        var: package_report.stdout_lines
+      block:
+        - name: Gather changed packages
+          register: package_report
+          command: dnf history info
+          args:
+            warn: no
+          # "dnf history info" sometimes throws a python traceback
+          failed_when: no
+
+        - name: Show changed packages
+          debug:
+            var: package_report.stdout_lines
       when: packages is changed
