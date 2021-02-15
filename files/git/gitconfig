@@ -1,0 +1,12 @@
+# This is Git's per-user configuration file.
+[user]
+	name = stove-panini
+	email = s.panicho@gmail.com
+#[url "git@gitlab.com:"]
+#	insteadOf = https://gitlab.com/
+[core]
+	excludesfile = /var/home/stephen/.gitignore_global
+[includeIf "gitdir:~/Projects/SAGE/"]
+	path = ~/Projects/SAGE/.gitconfig
+[pull]
+	rebase = false

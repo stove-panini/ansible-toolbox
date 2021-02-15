@@ -1,9 +1,37 @@
 #!/usr/bin/ansible-playbook -K
 ---
 - hosts: localhost
-  become: yes
   tasks:
+    - name: Link dotfiles
+      file:
+        state: link
+        force: yes
+        src: "{{ playbook_dir }}/files/{{ item.source }}"
+        path: "{{ item.dest }}"
+      loop:
+        - source: bash/bash_profile
+          dest: ~/.bash_profile
+
+        - source: bash/bashrc
+          dest: ~/.bashrc
+
+        - source: vim/vimrc
+          dest: ~/.vimrc
+
+        - source: git/gitconfig
+          dest: ~/.gitconfig
+
+        - source: git/gitignore_global
+          dest: ~/.gitignore_global
+
+        - source: mpv
+          dest: ~/.config/mpv
+
+        - source: systemd-tmpfiles
+          dest: ~/.config/user-tmpfiles.d
+
     - name: Add Google Cloud repo
+      become: yes
       yum_repository:
         name: google-cloud-sdk
         description: Google Cloud SDK
@@ -15,7 +43,20 @@
           - https://packages.cloud.google.com/yum/doc/yum-key.gpg
           - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
+    - name: Add Helm COPR repo
+      become: yes
+      yum_repository:
+        name: copr:copr.fedorainfracloud.org:cerenit:helm
+        description: Copr repo for helm owned by cerenit
+        baseurl: https://download.copr.fedorainfracloud.org/results/cerenit/helm/fedora-$releasever-$basearch
+        enabled: yes
+        skip_if_unavailable: yes
+        gpgcheck: yes
+        repo_gpgcheck: no
+        gpgkey: https://download.copr.fedorainfracloud.org/results/cerenit/helm/pubkey.gpg
+
     - name: Install packages
+      become: yes
       register: packages
       dnf:
         state: latest # noqa 403
@@ -24,19 +65,17 @@
           - ansible
           - bash-completion
           - bind-utils
-            # Prevent LANG issues when SSHing from toolbox
           - glibc-langpack-en
+          - helm
           - kubectl
           - nmap
+          - openssl
           - python3-ansible-lint
           - python3-flake8
           - ruby
           - ShellCheck
-          - stow
           - tmux
-          - vim-enhanced
           - vim-X11
-          - virt-manager
           - youtube-dl
 
     - name: Package report
