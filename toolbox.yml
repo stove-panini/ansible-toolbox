@@ -15,9 +15,6 @@
         - source: bash/bashrc
           dest: ~/.bashrc
 
-        - source: vim/vimrc
-          dest: ~/.vimrc
-
         - source: git/gitconfig
           dest: ~/.gitconfig
 
@@ -27,8 +24,14 @@
         - source: mpv
           dest: ~/.config/mpv
 
+        - source: shellcheck/shellcheckrc
+          dest: ~/.shellcheckrc
+
         - source: systemd-tmpfiles
           dest: ~/.config/user-tmpfiles.d
+
+        - source: vim/vimrc
+          dest: ~/.vimrc
 
     - name: Add Google Cloud repo
       become: yes
