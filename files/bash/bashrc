@@ -2,12 +2,11 @@
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
-	. /etc/bashrc
+    . /etc/bashrc
 fi
 
 # User specific environment
-if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
-then
+if ! [[ "$PATH" =~ $HOME/.local/bin:$HOME/bin: ]]; then
     PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 fi
 export PATH
@@ -41,8 +40,9 @@ export PS1
 # User specific aliases and functions
 alias cp='cp -i'
 alias mv='mv -i'
-alias ls='ls --classify --human-readable --group-directories-first'
-alias la='ll -l --almost-all'
+alias ls='ls --color=auto --classify --human-readable --group-directories-first'
+alias ll='ls -l'
+alias la='ll --almost-all'
 
 [[ -x $(command -v vimx) ]] && alias vim='vimx'
 
