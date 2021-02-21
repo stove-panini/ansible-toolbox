@@ -2,75 +2,15 @@
 ---
 - hosts: localhost
   tasks:
-    - name: Link dotfiles
-      file:
-        state: link
-        force: yes
-        src: "{{ playbook_dir }}/files/{{ item.source }}"
-        path: "{{ item.dest }}"
-      loop:
-        - source: bash/bash_profile
-          dest: ~/.bash_profile
-
-        - source: bash/bashrc
-          dest: ~/.bashrc
-
-        - source: git/gitconfig
-          dest: ~/.gitconfig
-
-        - source: git/gitignore_global
-          dest: ~/.gitignore_global
-
-        - source: mpv
-          dest: ~/.config/mpv
-
-        - source: shellcheck/shellcheckrc
-          dest: ~/.shellcheckrc
-
-        - source: systemd-tmpfiles
-          dest: ~/.config/user-tmpfiles.d
-
-        - source: vim/vimrc
-          dest: ~/.vimrc
-
-    - name: Add Google Cloud repo
-      become: yes
-      yum_repository:
-        name: google-cloud-sdk
-        description: Google Cloud SDK
-        baseurl: https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64
-        enabled: yes
-        gpgcheck: yes
-        repo_gpgcheck: yes
-        gpgkey:
-          - https://packages.cloud.google.com/yum/doc/yum-key.gpg
-          - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-
-    - name: Add Helm COPR repo
-      become: yes
-      yum_repository:
-        name: copr:copr.fedorainfracloud.org:cerenit:helm
-        description: Copr repo for helm owned by cerenit
-        baseurl: https://download.copr.fedorainfracloud.org/results/cerenit/helm/fedora-$releasever-$basearch
-        enabled: yes
-        skip_if_unavailable: yes
-        gpgcheck: yes
-        repo_gpgcheck: no
-        gpgkey: https://download.copr.fedorainfracloud.org/results/cerenit/helm/pubkey.gpg
-
-    - name: Install packages
-      become: yes
-      register: packages
-      dnf:
-        state: latest # noqa 403
-        name:
+    - name: Set packages to install
+      set_fact:
+        dnf_pkgs:
           - '@Development Tools'
           - ansible
           - bash-completion
           - bind-utils
-          - glibc-langpack-en
-          - helm
-          - kubectl
+          - glibc-langpack-en # to properly set LANG
+          - libxcrypt-compat # for homebrew
           - nmap
           - openssl
           - python3-ansible-lint
@@ -78,8 +18,60 @@
           - ruby
           - ShellCheck
           - tmux
+          - vim-enhanced # for vimdiff
           - vim-X11
           - youtube-dl
+
+        brew_pkgs:
+          - bash-completion
+          - fluxcd/tap/flux
+          - helm
+          - k3sup
+          - k9s
+          - kubectl
+          - kustomize
+
+        dotfiles:
+          - source: bash/bash_profile
+            dest: ~/.bash_profile
+
+          - source: bash/bashrc
+            dest: ~/.bashrc
+
+          - source: git/gitconfig
+            dest: ~/.gitconfig
+
+          - source: git/gitignore_global
+            dest: ~/.gitignore_global
+
+          - source: mpv
+            dest: ~/.config/mpv
+
+          - source: shellcheck/shellcheckrc
+            dest: ~/.shellcheckrc
+
+          - source: systemd-tmpfiles
+            dest: ~/.config/user-tmpfiles.d
+
+          - source: vim/vimrc
+            dest: ~/.vimrc
+
+#------------------------------------------------------------------------------
+
+    - name: Link dotfiles
+      file:
+        state: link
+        force: yes
+        src: "{{ playbook_dir }}/files/{{ item.source }}"
+        path: "{{ item.dest }}"
+      loop: "{{ dotfiles }}"
+
+    - name: Install packages
+      become: yes
+      register: packages
+      dnf:
+        state: latest # noqa 403
+        name: "{{ dnf_pkgs }}"
 
     - name: Package report
       block:
@@ -95,3 +87,21 @@
           debug:
             var: package_report.stdout_lines
       when: packages is changed
+
+    - name: Install homebrew
+      shell:
+        cmd: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        creates: "/home/linuxbrew/.linuxbrew/bin/brew"
+
+    - name: Install homebrew packages
+      register: homebrew_packages
+      homebrew:
+        state: latest # noqa 403
+        path: /home/linuxbrew/.linuxbrew/bin
+        update_homebrew: yes
+        name: "{{ brew_pkgs }}"
+
+    - name: Show changed homebrew packages
+      debug:
+        var: homebrew_packages.msg
+      when: homebrew_packages is changed

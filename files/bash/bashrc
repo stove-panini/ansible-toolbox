@@ -14,30 +14,58 @@ export PATH
 # For the love of god, no Ctrl+S, Ctrl+Q
 stty -ixon -ixoff
 
-# Set prompt
-# 0/8  - Black     4/12 - Blue
-# 1/9  - Red       5/13 - Magenta
-# 2/10 - Green     6/14 - Cyan
-# 3/11 - Yellow    7/15 - White
-
-if [[ "${USER}" = root ]]; then
-    color1=9
-    color2=1
-    color3=1
-elif [[ -n "${TOOLBOX_PATH}" ]]; then
-    color1=14
-    color2=6
-    color3=7
-else
-    color1=12
-    color2=4
-    color3=7
-fi
-
-PS1="\[$(tput setaf ${color1})\]\u\[$(tput setaf ${color2})\]@\h \[$(tput setaf ${color3})\][\w]\n\$ \[$(tput sgr0)\]"
-export PS1
-
 # User specific aliases and functions
+_set_color() {
+    local -A colormap
+    colormap['black']=0
+    colormap['red']=1
+    colormap['green']=2
+    colormap['yellow']=3
+    colormap['blue']=4
+    colormap['magenta']=5
+    colormap['cyan']=6
+    colormap['white']=7
+    colormap['bright_black']=8
+    colormap['bright_red']=9
+    colormap['bright_green']=10
+    colormap['bright_yellow']=11
+    colormap['bright_blue']=12
+    colormap['bright_magenta']=13
+    colormap['bright_cyan']=14
+    colormap['bright_white']=15
+
+    printf '\[%s\]' "$(tput setaf ${colormap[$1]})"
+}
+
+_reset_color() {
+    printf '\[%s\]' "$(tput sgr0)"
+}
+
+_set_bash_prompt() {
+    local ec_color user_color host_color path_color
+
+    # shellcheck disable=SC2181
+    if (( $? == 0 )); then
+        ec_color="$(_set_color white)"
+    else
+        ec_color="$(_set_color bright_red)"
+    fi
+
+    if [[ -n "$TOOLBOX_PATH" ]]; then
+        user_color="$(_set_color bright_green)"
+        host_color="$(_set_color green)"
+        path_color="$(_set_color white)"
+    else
+        user_color="$(_set_color bright_yellow)"
+        host_color="$(_set_color yellow)"
+        path_color="$(_set_color white)"
+    fi
+
+    PS1="${user_color}\u${host_color}@\h ${path_color}[\w]\n${ec_color}\$ $(_reset_color)"
+}
+
+PROMPT_COMMAND=_set_bash_prompt
+
 alias cp='cp -i'
 alias mv='mv -i'
 alias ls='ls --color=auto --classify --human-readable --group-directories-first'
@@ -50,3 +78,15 @@ alias la='ll --almost-all'
 
 # Fuzzy finder keyboard shortcuts (line added by install hook)
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+# Flux command completion
+[[ -x $(command -v flux) ]] && . <(flux completion bash)
+
+# Homebrew environment for toolbox
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+    if [[ -r "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh" ]]; then
+        . "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh"
+    fi
+fi
