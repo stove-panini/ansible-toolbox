@@ -37,31 +37,40 @@ _set_color() {
     printf '\[%s\]' "$(tput setaf ${colormap[$1]})"
 }
 
-_reset_color() {
-    printf '\[%s\]' "$(tput sgr0)"
-}
-
 _set_bash_prompt() {
-    local ec_color user_color host_color path_color
+    local ec=$?
+    local ec_str user_str host_str path_str git_str
 
-    # shellcheck disable=SC2181
-    if (( $? == 0 )); then
-        ec_color="$(_set_color white)"
-    else
-        ec_color="$(_set_color bright_red)"
-    fi
-
+    # Different colors for toolbox
     if [[ -n "$TOOLBOX_PATH" ]]; then
-        user_color="$(_set_color bright_green)"
-        host_color="$(_set_color green)"
-        path_color="$(_set_color white)"
+        user_str="$(_set_color bright_green)\u"
+        host_str="$(_set_color green)@\h"
     else
-        user_color="$(_set_color bright_yellow)"
-        host_color="$(_set_color yellow)"
-        path_color="$(_set_color white)"
+        user_str="$(_set_color bright_yellow)\u"
+        host_str="$(_set_color yellow)@\h"
     fi
 
-    PS1="${user_color}\u${host_color}@\h ${path_color}[\w]\n${ec_color}\$ $(_reset_color)"
+    path_str="$(_set_color white)[\w]"
+
+    # Alert if last command failed
+    if (( ec == 0 )); then
+        ec_str="$(_set_color white)\$"
+    else
+        ec_str="$(_set_color bright_red)✘"
+    fi
+
+    # Indicate current git branch and changes, if any
+    if git branch --show-current &>/dev/null; then
+        git_str="$(_set_color magenta)[$(git branch --show-current)]"
+
+        if (( $(git status -s | wc -l) > 0 )); then
+            git_str+="+"
+        fi
+    fi
+
+    PS1="${user_str}${host_str} ${path_str} ${git_str}\n${ec_str} "
+    # Reset styling
+    PS1+="\[$(tput sgr0)\]"
 }
 
 PROMPT_COMMAND=_set_bash_prompt
@@ -71,6 +80,7 @@ alias mv='mv -i'
 alias ls='ls --color=auto --classify --human-readable --group-directories-first'
 alias ll='ls -l'
 alias la='ll --almost-all'
+alias k='kubectl'
 
 [[ -x $(command -v vimx) ]] && alias vim='vimx'
 
