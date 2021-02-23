@@ -1,0 +1,71 @@
+# ~/.bash_prompt
+# vim: set ft=sh:
+
+# To change the theme color, set $PROMPT_THEME (default: blue)
+
+_set_color() {
+    local -A colormap
+    colormap=(
+        [reset]=0
+
+        [default]=39
+        [black]=30
+        [red]=31
+        [green]=32
+        [yellow]=33
+        [blue]=34
+        [magenta]=35
+        [cyan]=36
+        [white]=37
+    )
+
+    # Bright versions are accessed by adding 60 to the color code
+    if [[ $1 == 'bright' ]]; then
+        shift
+        colormap[$1]=$(( ${colormap[$1]} + 60 ))
+    fi
+
+    printf '\[\e[0;%sm\]' "${colormap[$1]}"
+}
+
+_set_bash_prompt() {
+    local ec=$?
+    local user_color host_color path_color icon_color git_color err_color
+    local icon_str user_str host_str path_str git_str
+
+    user_color="$(_set_color bright "${PROMPT_THEME:-blue}")"
+    host_color="$(_set_color "${PROMPT_THEME:-blue}")"
+    path_color="$(_set_color white)"
+    icon_color="$(_set_color white)"
+    git_color="$(_set_color yellow)"
+    err_color="$(_set_color bright red)"
+
+    user_str="${user_color}\u"
+    host_str="${host_color}@\h"
+    path_str="${path_color}[\w]"
+
+    # Indicate current git branch and changes, if any
+    if git branch --show-current &>/dev/null; then
+        git_str="${git_color}[ $(git branch --show-current)"
+
+        if (( $(git status -s | wc -l) > 0 )); then
+            git_str+=' +]'
+        else
+            git_str+=' ]'
+        fi
+    fi
+
+    # Show exit code if last command failed
+    if (( ec == 0 )); then
+        icon_str="${icon_color}>"
+    else
+        icon_str="${err_color}(${ec})>"
+    fi
+
+    PS1="${user_str}${host_str} ${path_str}"
+    [[ -n ${git_str} ]] && PS1+=" ${git_str}"
+    PS1+="\n${icon_str} "
+    PS1+="$(_set_color reset)"
+}
+
+PROMPT_COMMAND=_set_bash_prompt

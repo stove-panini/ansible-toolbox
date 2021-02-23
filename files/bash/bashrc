@@ -14,67 +14,10 @@ export PATH
 # For the love of god, no Ctrl+S, Ctrl+Q
 stty -ixon -ixoff
 
+[[ -n $TOOLBOX_PATH ]] && export PROMPT_THEME='green'
+[[ -f ~/.bash_prompt ]] && . ~/.bash_prompt
+
 # User specific aliases and functions
-_set_color() {
-    local -A colormap
-    colormap['black']=0
-    colormap['red']=1
-    colormap['green']=2
-    colormap['yellow']=3
-    colormap['blue']=4
-    colormap['magenta']=5
-    colormap['cyan']=6
-    colormap['white']=7
-    colormap['bright_black']=8
-    colormap['bright_red']=9
-    colormap['bright_green']=10
-    colormap['bright_yellow']=11
-    colormap['bright_blue']=12
-    colormap['bright_magenta']=13
-    colormap['bright_cyan']=14
-    colormap['bright_white']=15
-
-    printf '\[%s\]' "$(tput setaf ${colormap[$1]})"
-}
-
-_set_bash_prompt() {
-    local ec=$?
-    local ec_str user_str host_str path_str git_str
-
-    # Different colors for toolbox
-    if [[ -n "$TOOLBOX_PATH" ]]; then
-        user_str="$(_set_color bright_green)\u"
-        host_str="$(_set_color green)@\h"
-    else
-        user_str="$(_set_color bright_yellow)\u"
-        host_str="$(_set_color yellow)@\h"
-    fi
-
-    path_str="$(_set_color white)[\w]"
-
-    # Alert if last command failed
-    if (( ec == 0 )); then
-        ec_str="$(_set_color white)\$"
-    else
-        ec_str="$(_set_color bright_red)✘"
-    fi
-
-    # Indicate current git branch and changes, if any
-    if git branch --show-current &>/dev/null; then
-        git_str="$(_set_color magenta)[$(git branch --show-current)]"
-
-        if (( $(git status -s | wc -l) > 0 )); then
-            git_str+="+"
-        fi
-    fi
-
-    PS1="${user_str}${host_str} ${path_str} ${git_str}\n${ec_str} "
-    # Reset styling
-    PS1+="\[$(tput sgr0)\]"
-}
-
-PROMPT_COMMAND=_set_bash_prompt
-
 alias cp='cp -i'
 alias mv='mv -i'
 alias ls='ls --color=auto --classify --human-readable --group-directories-first'
@@ -84,7 +27,7 @@ alias k='kubectl'
 
 [[ -x $(command -v vimx) ]] && alias vim='vimx'
 
-[[ -z "$TOOLBOX_PATH" ]] && alias te='toolbox enter'
+[[ -z $TOOLBOX_PATH ]] && alias te='toolbox enter'
 
 # Fuzzy finder keyboard shortcuts (line added by install hook)
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash

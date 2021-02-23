@@ -38,6 +38,9 @@
           - source: bash/bashrc
             dest: ~/.bashrc
 
+          - source: bash/bash_prompt
+            dest: ~/.bash_prompt
+
           - source: git/gitconfig
             dest: ~/.gitconfig
 
