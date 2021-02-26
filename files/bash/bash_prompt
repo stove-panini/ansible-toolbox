@@ -49,9 +49,9 @@ _set_bash_prompt() {
         git_str="${git_color}[ $(git branch --show-current)"
 
         if (( $(git status -s | wc -l) > 0 )); then
-            git_str+=' +]'
+            git_str+='+]'
         else
-            git_str+=' ]'
+            git_str+=']'
         fi
     fi
 
