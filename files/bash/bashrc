@@ -20,6 +20,8 @@ stty -ixon -ixoff
 # User specific aliases and functions
 alias cp='cp -i'
 alias mv='mv -i'
+alias rm='rm -i'
+alias mkdir='mkdir -p'
 alias ls='ls --color=auto --classify --human-readable --group-directories-first'
 alias ll='ls -l'
 alias la='ll --almost-all'
