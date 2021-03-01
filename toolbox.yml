@@ -2,7 +2,7 @@
 ---
 - hosts: localhost
   tasks:
-    - name: Set packages to install
+    - name: Set packages & dotfiles to install
       set_fact:
         dnf_pkgs:
           - '@Development Tools'
