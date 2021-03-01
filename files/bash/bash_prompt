@@ -1,14 +1,15 @@
 # ~/.bash_prompt
 # vim: set ft=sh:
 
-# To change the theme color, set $PROMPT_THEME (default: blue)
+# Options:
+# PROMPT_THEME - colors for user@host string (default: blue)
 
 _set_color() {
     local -A colormap
     colormap=(
         [reset]=0
-
         [default]=39
+
         [black]=30
         [red]=31
         [green]=32
@@ -28,43 +29,45 @@ _set_color() {
     printf '\[\e[0;%sm\]' "${colormap[$1]}"
 }
 
-_set_bash_prompt() {
-    local ec=$?
-    local user_color host_color path_color icon_color git_color err_color
-    local icon_str user_str host_str path_str git_str
-
-    user_color="$(_set_color bright "${PROMPT_THEME:-blue}")"
-    host_color="$(_set_color "${PROMPT_THEME:-blue}")"
-    path_color="$(_set_color white)"
-    icon_color="$(_set_color white)"
-    git_color="$(_set_color yellow)"
-    err_color="$(_set_color bright red)"
-
-    user_str="${user_color}\u"
-    host_str="${host_color}@\h"
-    path_str="${path_color}[\w]"
+_set_git_string() {
+    local result
 
     # Indicate current git branch and changes, if any
     if git branch --show-current &>/dev/null; then
-        git_str="${git_color}[ $(git branch --show-current)"
+        result="[ $(git branch --show-current)"
 
         if (( $(git status -s | wc -l) > 0 )); then
-            git_str+='+]'
+            result+='+]'
         else
-            git_str+=']'
+            result+=']'
         fi
     fi
 
-    # Show exit code if last command failed
+    echo "${result}"
+}
+
+_set_bash_prompt() {
+    local ec=$? # must be set first
+    local -A strings
+    local input_indicator
+
+    strings=(
+        [user]="$(_set_color bright "${PROMPT_THEME:-blue}")\u"
+        [host]="$(_set_color "${PROMPT_THEME:-blue}")@\h"
+        [path]="$(_set_color white)[\w]"
+        [ok]="$(_set_color white)>"
+        [err]="$(_set_color bright red)(${ec})>"
+        [git]="$(_set_color yellow)$(_set_git_string)"
+    )
+
     if (( ec == 0 )); then
-        icon_str="${icon_color}>"
+        input_indicator="${strings[ok]}"
     else
-        icon_str="${err_color}(${ec})>"
+        input_indicator="${strings[err]}"
     fi
 
-    PS1="${user_str}${host_str} ${path_str}"
-    [[ -n ${git_str} ]] && PS1+=" ${git_str}"
-    PS1+="\n${icon_str} "
+    PS1="${strings[user]}${strings[host]} ${strings[path]} ${strings[git]}"
+    PS1+="\n${input_indicator} "
     PS1+="$(_set_color reset)"
 }
 
