@@ -14,7 +14,9 @@ export PATH
 # For the love of god, no Ctrl+S, Ctrl+Q
 stty -ixon -ixoff
 
-[[ -n $TOOLBOX_PATH ]] && export PROMPT_THEME='green'
+# Set the prompt and theme for toolbox
+# shellcheck disable=SC2034
+[[ -n $TOOLBOX_PATH ]] && PS1_THEME='green'
 [[ -f ~/.bash_prompt ]] && . ~/.bash_prompt
 
 # User specific aliases and functions
