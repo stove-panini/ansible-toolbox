@@ -26,22 +26,22 @@ __ps1_color() {
         colormap[$1]=$(( ${colormap[$1]} + 60 ))
     fi
 
-    # Octal escapes must be used when PS1 dynamically evaluates a function
-    # e.g. \001 instead of \[
+    # Octal escapes must be used for brackets when dynamically evaluatng a
+    # function call in PS1. (e.g. '\001' instead of '\[')
     printf '\001\e[0;%sm\002' "${colormap[$1]}"
 }
 
 __set_ec() {
     # Store the value of $? so we can act on it in PS1
     # This must be the first thing called by PROMPT_COMMAND
-    LAST_EC=$?
+    _LAST_EC=$?
 }
 
 __ps1_ec() {
-    if (( LAST_EC == 0 )); then
-        echo -n "$(__ps1_color white)> "
+    if (( _LAST_EC == 0 )); then
+        echo -en "$(__ps1_color white)> "
     else
-        echo -n "$(__ps1_color bright red)($LAST_EC)> "
+        echo -en "$(__ps1_color bright red)($_LAST_EC)> "
     fi
 }
 
@@ -63,15 +63,13 @@ __ps1_git() {
 }
 
 _set_ps1() {
-    local -A strings
+    local ps1_user ps1_host ps1_pwd
 
-    strings=(
-        [user]="$(__ps1_color bright "${PS1_THEME:-blue}")\u"
-        [host]="$(__ps1_color "${PS1_THEME:-blue}")@\h"
-        [path]="$(__ps1_color white)[\w]"
-    )
+    ps1_user="$(__ps1_color bright "${PS1_THEME:-blue}")\u"
+    ps1_host="$(__ps1_color "${PS1_THEME:-blue}")@\h"
+    ps1_pwd="$(__ps1_color white)[\w]"
 
-    PS1="${strings[user]}${strings[host]} ${strings[path]}"
+    PS1="${ps1_user}${ps1_host} ${ps1_pwd}"
     PS1+='$(__ps1_git)'
     PS1+="\n"
     PS1+='$(__ps1_ec)'
