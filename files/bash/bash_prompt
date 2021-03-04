@@ -2,9 +2,9 @@
 # vim: set ft=sh:
 
 # Options:
-# PROMPT_THEME - colors for user@host string (default: blue)
+# PS1_THEME - colors for user@host string (default: blue)
 
-_set_color() {
+__ps1_color() {
     local -A colormap
     colormap=(
         [reset]=0
@@ -26,10 +26,26 @@ _set_color() {
         colormap[$1]=$(( ${colormap[$1]} + 60 ))
     fi
 
-    printf '\[\e[0;%sm\]' "${colormap[$1]}"
+    # Octal escapes must be used when PS1 dynamically evaluates a function
+    # e.g. \001 instead of \[
+    printf '\001\e[0;%sm\002' "${colormap[$1]}"
 }
 
-_set_git_string() {
+__set_ec() {
+    # Store the value of $? so we can act on it in PS1
+    # This must be the first thing called by PROMPT_COMMAND
+    LAST_EC=$?
+}
+
+__ps1_ec() {
+    if (( LAST_EC == 0 )); then
+        echo -n "$(__ps1_color white)> "
+    else
+        echo -n "$(__ps1_color bright red)($LAST_EC)> "
+    fi
+}
+
+__ps1_git() {
     local result
 
     # Indicate current git branch and changes, if any
@@ -41,34 +57,33 @@ _set_git_string() {
         else
             result+=']'
         fi
-    fi
 
-    echo "${result}"
+        echo -n " $(__ps1_color yellow)${result}"
+    fi
 }
 
-_set_bash_prompt() {
-    local ec=$? # must be set first
+_set_ps1() {
     local -A strings
-    local input_indicator
 
     strings=(
-        [user]="$(_set_color bright "${PROMPT_THEME:-blue}")\u"
-        [host]="$(_set_color "${PROMPT_THEME:-blue}")@\h"
-        [path]="$(_set_color white)[\w]"
-        [ok]="$(_set_color white)>"
-        [err]="$(_set_color bright red)(${ec})>"
-        [git]="$(_set_color yellow)$(_set_git_string)"
+        [user]="$(__ps1_color bright "${PS1_THEME:-blue}")\u"
+        [host]="$(__ps1_color "${PS1_THEME:-blue}")@\h"
+        [path]="$(__ps1_color white)[\w]"
     )
 
-    if (( ec == 0 )); then
-        input_indicator="${strings[ok]}"
-    else
-        input_indicator="${strings[err]}"
-    fi
-
-    PS1="${strings[user]}${strings[host]} ${strings[path]} ${strings[git]}"
-    PS1+="\n${input_indicator} "
-    PS1+="$(_set_color reset)"
+    PS1="${strings[user]}${strings[host]} ${strings[path]}"
+    PS1+='$(__ps1_git)'
+    PS1+="\n"
+    PS1+='$(__ps1_ec)'
+    PS1+="$(__ps1_color reset)"
 }
 
-PROMPT_COMMAND=_set_bash_prompt
+# First action must be to grab the exit code of the previous command.
+# PROMPT_COMMAND is already set by /etc/profile.d/vte.sh, so preserve it
+if [[ -r /etc/profile.d/vte.sh ]]; then
+    PROMPT_COMMAND="__set_ec && $PROMPT_COMMAND"
+else
+    PROMPT_COMMAND="__set_ec"
+fi
+
+_set_ps1
