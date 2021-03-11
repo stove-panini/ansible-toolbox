@@ -38,10 +38,8 @@ __set_ec() {
 }
 
 __ps1_ec() {
-    if (( _LAST_EC == 0 )); then
-        echo -en "$(__ps1_color white)→ "
-    else
-        echo -en "$(__ps1_color bright red)($_LAST_EC)→ "
+    if (( _LAST_EC != 0 )); then
+        echo -n " $(__ps1_color bright red)[$_LAST_EC]"
     fi
 }
 
@@ -63,16 +61,18 @@ __ps1_git() {
 }
 
 _set_ps1() {
-    local ps1_user ps1_host ps1_pwd
+    local ps1_user ps1_host ps1_pwd ps1_icon
 
     ps1_user="$(__ps1_color bright "${PS1_THEME:-blue}")\u"
     ps1_host="$(__ps1_color "${PS1_THEME:-blue}")@\h"
     ps1_pwd="$(__ps1_color white)[\w]"
+    ps1_icon="$(__ps1_color white)→"
 
     PS1="${ps1_user}${ps1_host} ${ps1_pwd}"
+    PS1+='$(__ps1_ec)'
     PS1+='$(__ps1_git)'
     PS1+="\n"
-    PS1+='$(__ps1_ec)'
+    PS1+="${ps1_icon} "
     PS1+="$(__ps1_color reset)"
 }
 
