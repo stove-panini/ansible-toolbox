@@ -39,9 +39,9 @@ __set_ec() {
 
 __ps1_ec() {
     if (( _LAST_EC == 0 )); then
-        echo -en "$(__ps1_color white)> "
+        echo -en "$(__ps1_color white)→ "
     else
-        echo -en "$(__ps1_color bright red)($_LAST_EC)> "
+        echo -en "$(__ps1_color bright red)($_LAST_EC)→ "
     fi
 }
 
