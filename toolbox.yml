@@ -73,7 +73,7 @@
       become: yes
       register: packages
       dnf:
-        state: latest # noqa 403
+        state: latest
         name: "{{ dnf_pkgs }}"
 
     - name: Package report
@@ -99,7 +99,7 @@
     - name: Install homebrew packages
       register: homebrew_packages
       homebrew:
-        state: latest # noqa 403
+        state: latest
         path: /home/linuxbrew/.linuxbrew/bin
         update_homebrew: yes
         name: "{{ brew_pkgs }}"
