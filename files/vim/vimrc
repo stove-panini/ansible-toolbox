@@ -19,17 +19,19 @@ call plug#begin('~/.vim/plugged')
 Plug 'airblade/vim-gitgutter'
 Plug 'itchyny/lightline.vim'
 Plug 'itchyny/vim-gitbranch'
+Plug 'maximbaz/lightline-ale'
 Plug 'srcery-colors/srcery-vim'
 Plug 'tpope/vim-vinegar'
 
 " utils
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
 
 " syntax
-Plug 'vim-syntastic/syntastic'
+Plug 'dense-analysis/ale'
 Plug 'pearofducks/ansible-vim', { 'do': './UltiSnips/generate.sh --style dictionary' }
 Plug 'reedes/vim-pencil'
 Plug 'rodjek/vim-puppet'
@@ -46,29 +48,52 @@ call plug#end()
 "================
 " PLUGIN CONFIG |
 "---------------
+" ALE
+" ---------
+"let g:ale_open_list = 1
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+
 " Ansible
 " -------
 let g:ansible_unindent_after_newline = 1
-augroup ansible_vim_fthosts
-  autocmd!
-  autocmd BufNewFile,BufRead */files/*.yml,*/files/*.yaml set filetype=yaml
-augroup END
+" yaml in the files directory of a role aren't playbooks
+autocmd BufNewFile,BufRead */files/*.yml,*/files/*.yaml set ft=yaml
 
 " Lightline w/ plugin integration
 " -------------------------------
-let g:lightline = {
-\    'colorscheme': 'srcery',
-\    'active': {
-\        'left': [
-\          [ 'mode', 'paste' ],
-\          [ 'gitbranch', 'readonly', 'filename', 'modified' ],
-\          [ 'syntastic' ]
-\        ]
-\    },
-\    'component_function': {
-\        'gitbranch': 'gitbranch#name',
-\        'syntastic': 'SyntasticStatuslineFlag'
-\    },
+let g:lightline = {}
+let g:lightline.colorscheme = 'srcery'
+let g:lightline.component_function = {'gitbranch': 'gitbranch#name'}
+let g:lightline.component_expand = {
+\   'tabs': 'lightline#tabs',
+\   'linter_checking': 'lightline#ale#checking',
+\   'linter_infos': 'lightline#ale#infos',
+\   'linter_warnings': 'lightline#ale#warnings',
+\   'linter_errors': 'lightline#ale#errors',
+\   'linter_ok': 'lightline#ale#ok',
+\}
+let g:lightline.component_type = {
+\   'tabs': 'tabsel',
+\   'close': 'raw',
+\   'linter_checking': 'right',
+\   'linter_infos': 'right',
+\   'linter_warnings': 'warning',
+\   'linter_errors': 'error',
+\   'linter_ok': 'right',
+\}
+let g:lightline.active = {
+\   'left': [
+\       ['mode', 'paste'],
+\       ['readonly', 'filename'],
+\       ['gitbranch', 'modified']
+\   ],
+\   'right': [
+\       ['linter_checking', 'linter_errors', 'linter_warnings', 'linter_infos', 'lineinfo'],
+\       ['percent'],
+\       ['fileformat', 'fileencoding', 'filetype']
+\   ]
 \}
 
 " Pencil
@@ -80,21 +105,13 @@ augroup pencil
     autocmd FileType text         call pencil#init()
 augroup END
 
+" Puppet
+" ------
+autocmd BufNewFile,BufRead */manifests/*.pp set ft=puppet
+
 " Python
 " ------
 let g:python_highlight_all = 1
-
-" Syntastic
-" ---------
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 1
-
-" Preferred checkers
-let g:syntastic_ruby_checkers = ['rubocop']
-let g:syntastic_python_checkers = ['flake8']
-let g:syntastic_cloudformation_checkers = ['cfn_lint']
 
 " Vinegar
 " -------
@@ -102,11 +119,11 @@ let g:syntastic_cloudformation_checkers = ['cfn_lint']
 let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
 
 
-autocmd BufNewFile,BufRead */manifests/*.pp set filetype=puppet
-
 "==========
 " OPTIONS |
 "---------
+" Colorscheme
+" -----------
 let g:srcery_italic = 1
 colorscheme srcery
 
@@ -129,25 +146,25 @@ set expandtab
 set tabstop=4
 " indent operation (<< and >>) size
 set shiftwidth=4
-" show tabs if they exist
+" show tabs and trailing spaces
 set list
 set listchars=tab:▸·,trail:·
-" 2 spaces for Ruby and YAML, please
-autocmd FileType ruby,yaml set ts=2 sw=2
 
 " Search
 " ------
 set ignorecase
 set smartcase
 
+" Filetypes
+" ---------
+autocmd FileType ruby,yaml set ts=2 sw=2
+
 
 "==================
 " CUSTOM KEYBINDS |
 "-----------------
-" map to nothing bc SPACE has a default action (move right)
-nnoremap <SPACE> <Nop>
-" gotta escape that special character notation
-let mapleader = "\<SPACE>"
+" set leader key to space
+let mapleader = " "
 
 " split control
 nnoremap <leader>- :Sexplore<CR>
@@ -170,9 +187,8 @@ nnoremap <leader>9 9gt
 nnoremap <leader>0 10gt
 
 " toggles should use ctrl
-nnoremap <leader><C-p> :PencilToggle<CR>
 nnoremap <leader><C-f> :FZF<CR>
-nnoremap <leader><C-g> :Rg<CR>
+nnoremap <leader><C-p> :PencilToggle<CR>
 
 " enter clears search results
 nnoremap <leader><CR> :nohlsearch<CR>
