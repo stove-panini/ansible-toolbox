@@ -1,23 +1,23 @@
 # .bashrc
 
 # Source global definitions
-if [ -f /etc/bashrc ]; then
-    . /etc/bashrc
+if [[ -f /etc/bashrc ]]; then
+    source /etc/bashrc
 fi
-
-# User specific environment
-if ! [[ "$PATH" =~ $HOME/.local/bin:$HOME/bin: ]]; then
-    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
-fi
-export PATH
 
 # For the love of god, no Ctrl+S, Ctrl+Q
 stty -ixon -ixoff
 
-# Set the prompt and theme for toolbox
-# shellcheck disable=SC2034
-[[ -n $TOOLBOX_PATH ]] && PS1_THEME='green'
-[[ -f ~/.bash_prompt ]] && . ~/.bash_prompt
+# Set the prompt
+if [[ -f ~/.bash_prompt ]]; then
+    if [[ -n $TOOLBOX_PATH ]]; then
+        export PS1_THEME='green'
+    else
+        export PS1_THEME='blue'
+    fi
+
+    source ~/.bash_prompt
+fi
 
 # User specific aliases and functions
 alias cp='cp -i'
@@ -37,13 +37,13 @@ alias k='kubectl'
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 # Flux command completion
-[[ -x $(command -v flux) ]] && . <(flux completion bash)
+[[ -x $(command -v flux) ]] && source <(flux completion bash)
 
 # Homebrew environment for toolbox
 if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
     if [[ -r "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh" ]]; then
-        . "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh"
+        source "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh"
     fi
 fi
