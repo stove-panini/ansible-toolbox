@@ -7,6 +7,7 @@
         dnf_pkgs:
           - '@Development Tools'
           - ansible
+          - ansible-collection-community-kubernetes
           - bash-completion
           - bind-utils
           - glibc-langpack-en # to properly set LANG
