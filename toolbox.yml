@@ -1,6 +1,7 @@
 #!/usr/bin/ansible-playbook -K
 ---
 - hosts: localhost
+  gather_facts: no
   tasks:
     - name: Set packages & dotfiles to install
       set_fact:
