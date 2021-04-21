@@ -28,7 +28,7 @@ __ps1_color() {
 
     # Octal escapes must be used for brackets when dynamically evaluatng a
     # function call in PS1. (e.g. '\001' instead of '\[')
-    printf '\001\e[0;%sm\002' "${colormap[$1]}"
+    printf '\001\033[0;%sm\002' "${colormap[$1]}"
 }
 
 __set_ec() {
