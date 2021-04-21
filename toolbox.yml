@@ -31,8 +31,8 @@
           - k3sup
           - k9s
           - kubectl
-          - kubeseal
           - kustomize
+          - sops
 
         dotfiles:
           - source: bash/bash_profile
