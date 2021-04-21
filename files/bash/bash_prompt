@@ -78,7 +78,7 @@ _set_ps1() {
 
 # First action must be to grab the exit code of the previous command.
 # PROMPT_COMMAND is already set by /etc/profile.d/vte.sh, so preserve it
-if [[ -r /etc/profile.d/vte.sh ]]; then
+if [[ -n $PROMPT_COMMAND ]]; then
     PROMPT_COMMAND="__set_ec && $PROMPT_COMMAND"
 else
     PROMPT_COMMAND="__set_ec"
