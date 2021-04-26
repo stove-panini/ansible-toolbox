@@ -12,6 +12,7 @@
           - bash-completion
           - bind-utils
           - glibc-langpack-en # to properly set LANG
+          - htop
           - libxcrypt-compat # for homebrew
           - nmap
           - openssl
