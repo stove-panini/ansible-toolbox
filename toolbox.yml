@@ -34,6 +34,7 @@
           - kubectl
           - kustomize
           - sops
+          - terraform
 
         dotfiles:
           - source: bash/bash_profile

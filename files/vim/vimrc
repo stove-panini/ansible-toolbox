@@ -32,6 +32,7 @@ Plug 'tpope/vim-surround'
 
 " syntax
 Plug 'dense-analysis/ale'
+Plug 'hashivim/vim-terraform'
 Plug 'pearofducks/ansible-vim', { 'do': './UltiSnips/generate.sh --style dictionary' }
 Plug 'reedes/vim-pencil'
 Plug 'rodjek/vim-puppet'
