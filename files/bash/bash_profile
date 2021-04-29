@@ -9,6 +9,8 @@ fi
 PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 export PATH
 
+export HISTCONTROL='ignoreboth'
+
 if [[ -x $(command -v vimx) ]]; then
     export EDITOR='vimx'
 else
