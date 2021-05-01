@@ -35,6 +35,7 @@
           - kustomize
           - sops
           - terraform
+          - terragrunt
 
         dotfiles:
           - source: bash/bash_profile
