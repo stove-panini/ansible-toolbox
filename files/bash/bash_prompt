@@ -1,9 +1,6 @@
 # ~/.bash_prompt
 # vim: set ft=sh:
 
-# Options:
-# PS1_THEME - colors for user@host string (default: blue)
-
 __ps1_color() {
     local -A colormap
     colormap=(
@@ -61,10 +58,11 @@ __ps1_git() {
 }
 
 _set_ps1() {
+    local ps1_theme="${1:-blue}"
     local ps1_user ps1_host ps1_pwd ps1_icon
 
-    ps1_user="$(__ps1_color bright "${PS1_THEME:-blue}")\u"
-    ps1_host="$(__ps1_color "${PS1_THEME:-blue}")@\h"
+    ps1_user="$(__ps1_color bright "${ps1_theme}")\u"
+    ps1_host="$(__ps1_color "${ps1_theme}")@\h"
     ps1_pwd="$(__ps1_color white)[\w]"
     ps1_icon="$(__ps1_color white)▶"
 
@@ -83,5 +81,3 @@ if [[ -n $PROMPT_COMMAND ]]; then
 else
     PROMPT_COMMAND="__set_ec"
 fi
-
-_set_ps1

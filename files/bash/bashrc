@@ -10,13 +10,13 @@ stty -ixon -ixoff
 
 # Set the prompt
 if [[ -f ~/.bash_prompt ]]; then
-    if [[ -n $TOOLBOX_PATH ]]; then
-        export PS1_THEME='green'
-    else
-        export PS1_THEME='blue'
-    fi
-
     source ~/.bash_prompt
+
+    if [[ -n $TOOLBOX_PATH ]]; then
+        _set_ps1 green
+    else
+        _set_ps1 blue
+    fi
 fi
 
 # User specific aliases and functions
