@@ -1,6 +1,12 @@
 # ~/.bash_prompt
 # vim: set ft=sh:
 
+_set_ec() {
+    # Store the value of $? so we can act on it in PS1
+    # This must be the first thing called by PROMPT_COMMAND
+    _LAST_EC=$?
+}
+
 __ps1_color() {
     local -A colormap
     colormap=(
@@ -28,12 +34,6 @@ __ps1_color() {
     printf '\001\033[0;%sm\002' "${colormap[$1]}"
 }
 
-__set_ec() {
-    # Store the value of $? so we can act on it in PS1
-    # This must be the first thing called by PROMPT_COMMAND
-    _LAST_EC=$?
-}
-
 __ps1_ec() {
     if (( _LAST_EC != 0 )); then
         echo -n " $(__ps1_color bright red)[$_LAST_EC]"
@@ -58,7 +58,7 @@ __ps1_git() {
 }
 
 _set_ps1() {
-    local ps1_theme="${1:-blue}"
+    local ps1_theme="$1"
     local ps1_user ps1_host ps1_pwd ps1_icon
 
     ps1_user="$(__ps1_color bright "${ps1_theme}")\u"
@@ -77,7 +77,9 @@ _set_ps1() {
 # First action must be to grab the exit code of the previous command.
 # PROMPT_COMMAND is already set by /etc/profile.d/vte.sh, so preserve it
 if [[ -n $PROMPT_COMMAND ]]; then
-    PROMPT_COMMAND="__set_ec && $PROMPT_COMMAND"
+    PROMPT_COMMAND="_set_ec && $PROMPT_COMMAND"
 else
-    PROMPT_COMMAND="__set_ec"
+    PROMPT_COMMAND="_set_ec"
 fi
+
+_set_ps1 "${1:-blue}"

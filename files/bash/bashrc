@@ -10,12 +10,10 @@ stty -ixon -ixoff
 
 # Set the prompt
 if [[ -f ~/.bash_prompt ]]; then
-    source ~/.bash_prompt
-
     if [[ -n $TOOLBOX_PATH ]]; then
-        _set_ps1 green
+        source ~/.bash_prompt green
     else
-        _set_ps1 blue
+        source ~/.bash_prompt
     fi
 fi
 
@@ -35,15 +33,3 @@ alias k='kubectl'
 
 # Fuzzy finder keyboard shortcuts (line added by install hook)
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-
-# Flux command completion
-[[ -x $(command -v flux) ]] && source <(flux completion bash)
-
-# Homebrew environment for toolbox
-if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-    if [[ -r "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh" ]]; then
-        source "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh"
-    fi
-fi

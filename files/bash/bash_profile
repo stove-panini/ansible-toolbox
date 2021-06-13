@@ -6,13 +6,25 @@ if [[ -f ~/.bashrc ]]; then
 fi
 
 # User specific environment and startup programs
-PATH="$HOME/.local/bin:$HOME/bin:$PATH"
-export PATH
+export HISTCONTROL='ignorespace:ignoredups:erasedups'
+export EDITOR='vim'
 
-export HISTCONTROL='ignoreboth'
+# Install gems to user dir by default
+if [[ -x $(command -v gem) ]]; then
+    export GEM_HOME="$(ruby -e 'puts Gem.user_dir')"
+    export PATH="$(ruby -e 'puts Gem.bindir'):$PATH"
+fi
 
-if [[ -x $(command -v vimx) ]]; then
-    export EDITOR='vimx'
-else
-    export EDITOR='vim'
+# Brew environment for toolbox
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+    if [[ -r "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh" ]]; then
+        source "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh"
+    fi
+fi
+
+# Flux command completion
+if [[ -x $(command -v flux) ]]; then
+    source <(flux completion bash)
 fi
