@@ -6,10 +6,9 @@
     - name: Set packages & dotfiles to install
       set_fact:
         dnf_pkgs:
-          - '@Development Tools'
+          - '@C Development Tools and Libraries'
           - ansible
           - ansible-collection-community-kubernetes
-          - bash-completion
           - bind-utils
           - glibc-langpack-en # to properly set LANG
           - htop
@@ -19,11 +18,13 @@
           - python3-ansible-lint
           - python3-flake8
           - ruby
+          - ruby-devel
           - ShellCheck
           - tmux
           - vim-enhanced # for vimdiff
           - vim-X11
           - youtube-dl
+          - ytop
 
         brew_pkgs:
           - bash-completion
