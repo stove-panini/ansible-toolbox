@@ -15,10 +15,13 @@
           - libxcrypt-compat # for homebrew
           - nmap
           - openssl
+          - pdk
+          - puppet-agent
           - python3-ansible-lint
           - python3-flake8
           - ruby
           - ruby-devel
+          - rubygem-puppet-lint
           - ShellCheck
           - tmux
           - vim-enhanced # for vimdiff
@@ -75,6 +78,16 @@
         src: "{{ playbook_dir }}/files/{{ item.source }}"
         path: "{{ item.dest }}"
       loop: "{{ dotfiles }}"
+
+    - name: Add Puppet 6 repos
+      become: yes
+      dnf:
+        state: installed
+        name:
+          # F32 is the latest one in the repo
+          - https://yum.puppetlabs.com/puppet6-release-fedora-32.noarch.rpm
+          # F31 is the latest one that includes PDK
+          - https://yum.puppetlabs.com/puppet-tools-release-fedora-31.noarch.rpm
 
     - name: Install packages
       become: yes
