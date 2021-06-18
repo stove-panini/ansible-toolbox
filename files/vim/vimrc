@@ -59,8 +59,9 @@ let g:ale_echo_msg_format = '[%linter%] %code%: %s [%severity%]'
 " Ansible
 " -------
 let g:ansible_unindent_after_newline = 1
+autocmd BufNewFile,BufRead */ansible/*.{yml,yaml} set ft=yaml.ansible
 " yaml in the files directory of a role aren't playbooks
-autocmd BufNewFile,BufRead */files/*.yml,*/files/*.yaml set ft=yaml
+autocmd BufNewFile,BufRead */files/*.{yml,yaml} set ft=yaml
 
 " Lightline w/ plugin integration
 " -------------------------------
